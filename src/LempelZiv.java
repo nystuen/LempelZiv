@@ -64,12 +64,12 @@ public class LempelZiv {
         for(int i = 0; i < startIndex; i++){
             byte compare = bytes[startIndex];
             System.out.println(compare);
-            if(compare.){
+            //if(compare){
                 compressFrom = startIndex - i;
                 firstMatch = false;
                 countMatch ++;
                 //System.out.print(bytes[i]);
-            }
+          //  }
             if(compare == bytes[i] && !firstMatch){
                 countMatch ++;
                 //System.out.print(bytes[i]);

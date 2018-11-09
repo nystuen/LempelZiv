@@ -3,7 +3,7 @@ import java.lang.reflect.Array;
 import java.rmi.server.ExportException;
 import java.util.ArrayList;
 
-public class Decompress {
+public class LempelZivDecompress {
     private static String s = "[]{}abcdefghijklmnopqrstuvwxyzæøå,.-;:_!#$%&/()=?´";
 
     //static byte[] bytes = {(byte) 5, (byte) 'b', (byte) 'm', (byte) 'o', (byte) 'b', (byte) 'a', (byte) -4, (byte) 4, (byte) 3, (byte) 'o', (byte) 'k', (byte) 'k', (byte) -10, (byte) 4, (byte) 1, (byte) 0};
