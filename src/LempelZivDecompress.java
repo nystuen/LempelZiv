@@ -1,6 +1,4 @@
 import java.io.*;
-import java.lang.reflect.Array;
-import java.rmi.server.ExportException;
 import java.util.ArrayList;
 
 public class LempelZivDecompress {
@@ -92,8 +90,8 @@ public class LempelZivDecompress {
     }
 
     public static void main(String[] args) {
-        writeBytesToFile("compressedFile.txt");
-        writeResultToFile("compressedFile.txt", "decompressedFile.txt");
+        writeBytesToFile("tekster/compressedFile.txt");
+        writeResultToFile("tekster/compressedFile.txt", "decompressedFile.txt");
     }
 
 }

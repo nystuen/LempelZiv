@@ -27,6 +27,7 @@ public class LempelZiv {
             bytesFromFile = Files.readAllBytes(readFilePath);
             totalLength = bytesFromFile.length;
             bytesRemaining = bytesFromFile.length;
+            System.out.println(bytesRemaining);
         } catch (IOException e){
             System.out.print(e);
         }
@@ -111,6 +112,7 @@ public class LempelZiv {
         compressedBuffer = new byte[bufferLength];
         for(int i = 0; i < bufferLength; i++){
             compressedBuffer[i] = buffer[i];
+            System.out.println(buffer[i]);
         }
     }
 
@@ -158,7 +160,7 @@ public class LempelZiv {
     }
 
     public static void main(String[] args) {
-        LempelZiv LempelZinCompression = new LempelZiv("C:\\Users\\knut-\\OneDrive\\Dokumenter\\Skole\\Programmering\\Prosjekter\\LempelZiv\\tekster\\opg12.txt", "C:\\Users\\knut-\\OneDrive\\Dokumenter\\Skole\\Programmering\\Prosjekter\\LempelZiv\\tekster\\compressed.txt"); //Sende inn fil som skal komprimeres og hvor ny fil skal skrives.
+        LempelZiv LempelZinCompression = new LempelZiv("C:\\Users\\knut-\\OneDrive\\Dokumenter\\Skole\\Programmering\\Prosjekter\\LempelZiv\\tekster\\decompressedFile.txt", "C:\\Users\\knut-\\OneDrive\\Dokumenter\\Skole\\Programmering\\Prosjekter\\LempelZiv\\tekster\\compressed.txt"); //Sende inn fil som skal komprimeres og hvor ny fil skal skrives.
         LempelZinCompression.compressFile();
     }
 }
