@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+// bug ved mer enn to gjentagende ord.2
 
 public class LempelZiv {
     private final int MIN_WORDLENGTH = 4;
@@ -67,15 +68,16 @@ public class LempelZiv {
                 }
                 if(foundCompress){
                     int unCompressed = compressIndex - doneBytes;
-                    compressedBuffer[bufferIndex] = (byte)-unCompressed;
+                    compressedBuffer[bufferIndex] = (byte)unCompressed;
                     bufferIndex++;
 
                     for (int b = doneBytes; b < compressIndex; b++, bufferIndex++){
                         compressedBuffer[bufferIndex] = bytesFromFile[b];
                     }
                     int howManyBack = compressIndex - startCompressIndex;
-                    compressedBuffer[bufferIndex] = (byte)howManyBack;
+                    compressedBuffer[bufferIndex] = (byte)-howManyBack;
                     bufferIndex++;
+                    System.out.println("nå er compresslength: " + compressLength +"\nBufferindex: " + bufferIndex);
                     compressedBuffer[bufferIndex] = (byte)compressLength;
                     bufferIndex++;
 
@@ -83,11 +85,11 @@ public class LempelZiv {
                     i += compressLength;
                 }
             }
-            int unCompressed = bytesFromFile.length - doneBytes;
-            compressedBuffer[bufferIndex] = (byte) -unCompressed;
+            int unCompressed = tempBlock.length - doneBytes;
+            compressedBuffer[bufferIndex] = (byte) unCompressed;
             bufferIndex++;
 
-            for(int b = doneBytes; b < bytesFromFile.length; b++, bufferIndex++){
+            for(int b = doneBytes; b < tempBlock.length; b++, bufferIndex++){
                 compressedBuffer[bufferIndex] = bytesFromFile[b];
             }
         }
@@ -132,9 +134,9 @@ public class LempelZiv {
                     isFound = false;
                     break;
                 }
-                if(isFound){
-                    return i;
-                }
+            }
+            if (isFound) {
+                return i;
             }
         }
         return -1;
@@ -160,7 +162,9 @@ public class LempelZiv {
     }
 
     public static void main(String[] args) {
-        LempelZiv LempelZinCompression = new LempelZiv("C:\\Users\\knut-\\OneDrive\\Dokumenter\\Skole\\Programmering\\Prosjekter\\LempelZiv\\tekster\\decompressedFile.txt", "C:\\Users\\knut-\\OneDrive\\Dokumenter\\Skole\\Programmering\\Prosjekter\\LempelZiv\\tekster\\compressed.txt"); //Sende inn fil som skal komprimeres og hvor ny fil skal skrives.
+        //LempelZiv LempelZinCompression = new LempelZiv("C:\\Users\\knut-\\OneDrive\\Dokumenter\\Skole\\Programmering\\Prosjekter\\LempelZiv\\tekster\\decompressedFile.txt", "C:\\Users\\knut-\\OneDrive\\Dokumenter\\Skole\\Programmering\\Prosjekter\\LempelZiv\\tekster\\compressed.txt"); //Sende inn fil som skal komprimeres og hvor ny fil skal skrives.
+        LempelZiv LempelZinCompression = new LempelZiv("tekster/text.txt", "tekster/compressed.txt"); //Sende inn fil som skal komprimeres og hvor ny fil skal skrives.
+
         LempelZinCompression.compressFile();
     }
 }
