@@ -43,8 +43,9 @@ public class LempelZiv {
 
             getNewBlock(bytesRemaining);
             boolean foundCompress = false;
-            System.out.println("currentBlock: " + currentBlock + "\nbytesRemaining: " + bytesRemaining);
-            for (int i = (currentBlock - 1) * MAX_DISTANCE_BACK; i < (currentBlock) * MAX_DISTANCE_BACK; i++) { //Loop som går gjennom hele teksten tegn for tegn.
+
+            System.out.println("currentBlock: " + currentBlock);
+            for (int k = (currentBlock - 1) * MAX_DISTANCE_BACK; k < (currentBlock) * MAX_DISTANCE_BACK; k++) { //Loop som går gjennom hele teksten tegn for tegn.
                 ArrayList<Byte> currentBytes = new ArrayList<>(); //Arrayliste som brukes
                 foundCompress = false; //Må resettes hver gang.
                 //Hjelpevariabler for komprimeringen:
@@ -52,16 +53,16 @@ public class LempelZiv {
                 int startCompressIndex = -1;
 
                 // System.out.println("i: " + i + "\ntotalLength: " + totalLength);
-                for (int j = i; j < i + 127 && j < totalLength; j++) {//For hvert tegn i teksten, går i loop fremover for å lage ulike ord. F.eks tekst ABCDEF: i = 0 --> ABCDEF, i = 1 --> BCDEF osv..
+                for (int j = k; j < k + 127 && j < totalLength; j++) {//For hvert tegn i teksten, går i loop fremover for å lage ulike ord. F.eks tekst ABCDEF: i = 0 --> ABCDEF, i = 1 --> BCDEF osv..
                     currentBytes.add(bytesFromFile[j]);//Legger til en byte av teksten for hver gjennomgang.
                     // System.out.println("j: " + j);
-                    if ((currentBytes.size() >= MIN_WORDLENGTH) && (bytesFromFile.length - i >= MIN_WORDLENGTH) && (currentBytes.size() + i) < 127) {//Sjekker om noen av bytene som vi har lagt i arraylisten kan matche bytene i teksten. Må ha lengre ord enn minimumslengden, og det må være flere tegn igjen enn minimumsordlengde.
+                    if ((currentBytes.size() >= MIN_WORDLENGTH) && (totalLength - k >= MIN_WORDLENGTH) && (currentBytes.size()) + k < MAX_DISTANCE_BACK) {//Sjekker om noen av bytene som vi har lagt i arraylisten kan matche bytene i teksten. Må ha lengre ord enn minimumslengden, og det må være flere tegn igjen enn minimumsordlengde.
 
-                        int compressPlace = findCompressionPlace(currentBytes, i); //Finner plass det er mulig å komprimere.
+                        int compressPlace = findCompressionPlace(currentBytes, k); //Finner plass det er mulig å komprimere.
 
                         if (compressPlace >= 0) {
                             foundCompress = true;
-                            compressIndex = i;
+                            compressIndex = k;
                             startCompressIndex = compressPlace;
                             compressLength = currentBytes.size();
                         } else {
@@ -84,7 +85,7 @@ public class LempelZiv {
                     compressedBuffer[bufferIndex] = (byte) compressLength;
                     bufferIndex++;
                     doneBytes = compressIndex + compressLength;
-                    i += compressLength;
+                    k += compressLength;
                 }
             }
             int unCompressed = -1;
@@ -95,9 +96,12 @@ public class LempelZiv {
             }
             compressedBuffer[bufferIndex] = (byte) unCompressed;
             bufferIndex++;
+
             for (int b = doneBytes; b < doneBytes + unCompressed; b++, bufferIndex++) {
                 compressedBuffer[bufferIndex] = bytesFromFile[b];
             }
+            doneBytes += unCompressed;
+
 
         }
         byte[] buffer = compressedBuffer; //Hjelpe buffer.
@@ -156,12 +160,11 @@ public class LempelZiv {
     private int newBlockCounter = 0; //Holder tellingen på hvor vi er i teksten vår slik at om teksten overgår maks størrelse, kan vi fortsette der vi slapp.
 
     public void getNewBlock(int bytesRemaining) {
-        System.out.println("newBlockCounter: " + newBlockCounter);
         if (bytesRemaining < MAX_DISTANCE_BACK) { //Hvis bytesRemaining ikke overgår en blokkstørrelse.
             tempBlock = new byte[bytesRemaining];
             for (int i = 0; i < bytesRemaining; i++, newBlockCounter++) {
                 tempBlock[i] = bytesFromFile[newBlockCounter];
-                System.out.print((char)bytesFromFile[newBlockCounter]);
+                //System.out.print((char) bytesFromFile[newBlockCounter]);
             }
             this.bytesRemaining = 0;
         } else { //Hvis bytesRemaining overgår blokkstørrelsen.
