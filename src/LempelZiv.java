@@ -15,6 +15,7 @@ public class LempelZiv {
     int bytesRemaining = -1;
     private byte[] bytesFromFile = new byte[0];
     private byte[] compressedBuffer = new byte[10000];
+    private int currentBlock = -1;
 
     public LempelZiv(String fileRead, String fileWrite) {
         this.fileRead = fileRead;
@@ -22,21 +23,18 @@ public class LempelZiv {
         readFile();
     }
 
-    public void readFile(){
-        try{
+    public void readFile() {
+        try {
             Path readFilePath = Paths.get(fileRead);
             bytesFromFile = Files.readAllBytes(readFilePath);
             totalLength = bytesFromFile.length;
             bytesRemaining = bytesFromFile.length;
-            System.out.println(bytesRemaining);
-        } catch (IOException e){
-            System.out.print(e);
+        } catch (IOException e) {
         }
     }
 
     public void compressFile() {
-        System.out.println("Hei og start komprimering");
-        
+
         int bufferIndex = 0;
 
         while (bytesRemaining != 0) { //Går helt til alle bytene i readFila er lest og gjennomgått av komprimeringen.
@@ -45,42 +43,45 @@ public class LempelZiv {
             boolean foundCompress = false;
             int doneBytes = 0;//Bytes som er ferdig komprimert slik at det er mulig å gå videre med teksten og være på riktig plass slik at neste komprimering skjer fra riktig sted.
             int compressIndex = -1;
-            for(int i = 0; i < totalLength; i++){ //Loop som går gjennom hele teksten tegn for tegn.
+            for (int i = 0; i < totalLength; i++) { //Loop som går gjennom hele teksten tegn for tegn.
                 ArrayList<Byte> currentBytes = new ArrayList<>(); //Arrayliste som brukes
                 foundCompress = false; //Må resettes hver gang.
                 //Hjelpevariabler for komprimeringen:
                 int compressLength = -1;
                 int startCompressIndex = -1;
 
-                for(int j = i; j < totalLength; j++){//For hvert tegn i teksten, går i loop fremover for å lage ulike ord. F.eks tekst ABCDEF: i = 0 --> ABCDEF, i = 1 --> BCDEF osv..
+                for (int j = i; j < totalLength; j++) {//For hvert tegn i teksten, går i loop fremover for å lage ulike ord. F.eks tekst ABCDEF: i = 0 --> ABCDEF, i = 1 --> BCDEF osv..
                     currentBytes.add(bytesFromFile[j]);//Legger til en byte av teksten for hver gjennomgang.
-                    if((currentBytes.size() >= MIN_WORDLENGTH) && (bytesFromFile.length - i >= MIN_WORDLENGTH)){//Sjekker om noen av bytene som vi har lagt i arraylisten kan matche bytene i teksten. Må ha lengre ord enn minimumslengden, og det må være flere tegn igjen enn minimumsordlengde.
-                        int compressPlace = findCompressionPlace(currentBytes, i); //Finner plass det er mulig å komprimere.
-                        if(compressPlace >= 0){
+                    System.out.println("j: " + j);
+                    if ((currentBytes.size() >= MIN_WORDLENGTH) && (bytesFromFile.length - i >= MIN_WORDLENGTH)) {//Sjekker om noen av bytene som vi har lagt i arraylisten kan matche bytene i teksten. Må ha lengre ord enn minimumslengden, og det må være flere tegn igjen enn minimumsordlengde.
+                        int compressPlace = 0;
+
+                            compressPlace = findCompressionPlace(currentBytes, i); //Finner plass det er mulig å komprimere.
+
+                        if (compressPlace >= 0) {
                             foundCompress = true;
                             compressIndex = i;
                             startCompressIndex = compressPlace;
                             compressLength = currentBytes.size();
-                        } else{
+                        } else {
                             break;
                         }
                     }
                 }
-                if(foundCompress){
+                if (foundCompress) {
                     int unCompressed = compressIndex - doneBytes;
-                    compressedBuffer[bufferIndex] = (byte)unCompressed;
+                    compressedBuffer[bufferIndex] = (byte) unCompressed;
                     bufferIndex++;
 
-                    for (int b = doneBytes; b < compressIndex; b++, bufferIndex++){
+                    for (int b = doneBytes; b < compressIndex; b++, bufferIndex++) {
                         compressedBuffer[bufferIndex] = bytesFromFile[b];
                     }
-                    int howManyBack = compressIndex - startCompressIndex;
-                    compressedBuffer[bufferIndex] = (byte)-howManyBack;
+                    int howManyBack = startCompressIndex - compressIndex;
+                    System.out.println("How many back: " + howManyBack);
+                    compressedBuffer[bufferIndex] = (byte) howManyBack;
                     bufferIndex++;
-                    System.out.println("nå er compresslength: " + compressLength +"\nBufferindex: " + bufferIndex);
-                    compressedBuffer[bufferIndex] = (byte)compressLength;
+                    compressedBuffer[bufferIndex] = (byte) compressLength;
                     bufferIndex++;
-
                     doneBytes = compressIndex + compressLength;
                     i += compressLength;
                 }
@@ -88,8 +89,7 @@ public class LempelZiv {
             int unCompressed = tempBlock.length - doneBytes;
             compressedBuffer[bufferIndex] = (byte) unCompressed;
             bufferIndex++;
-
-            for(int b = doneBytes; b < tempBlock.length; b++, bufferIndex++){
+            for (int b = doneBytes; b < tempBlock.length; b++, bufferIndex++) {
                 compressedBuffer[bufferIndex] = bytesFromFile[b];
             }
         }
@@ -98,39 +98,41 @@ public class LempelZiv {
         writeToFile();
     }
 
-    public void writeToFile(){
-        try{
+    public void writeToFile() {
+        try {
             DataOutputStream dataOutputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(fileWrite)));
             dataOutputStream.write(compressedBuffer);
             dataOutputStream.close();
-        }catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void fixEmptyBufferBytes(byte[] buffer, int bufferLength){
+    public void fixEmptyBufferBytes(byte[] buffer, int bufferLength) {
         compressedBuffer = new byte[bufferLength];
-        for(int i = 0; i < bufferLength; i++){
+        for (int i = 0; i < bufferLength; i++) {
             compressedBuffer[i] = buffer[i];
-            System.out.println(buffer[i]);
         }
     }
 
-    public int findCompressionPlace(ArrayList<Byte> bytesToMatch, int startIndex){
-        int startLongestBackIndex = startIndex - MAX_DISTANCE_BACK; //Variabel for hvor langt tilbake det skal startes å lete etter match for komprimering.
+    public int findCompressionPlace(ArrayList<Byte> bytesToMatch, int startIndex) {
+        int startLongestBackIndex = startIndex - MAX_DISTANCE_BACK ; //Variabel for hvor langt tilbake det skal startes å lete etter match for komprimering.
         int distanceBack = MAX_DISTANCE_BACK; //Variabel for hvor langt tilbake det kan letes.
-        if(startLongestBackIndex < 0){
+
+        if(startLongestBackIndex < 0) {
             startLongestBackIndex = 0;
-            distanceBack = startIndex;//Hvis det ikke er mulig å lete lengre tilbake enn en blokkstørrelse settes variabelen til startindeksen fordi det er hvor langt vi har kommet frem og derfor ikke er mulig å lete lengre tilbake.
+            distanceBack = startIndex;
         }
 
-        for (int i = startLongestBackIndex; i <= (distanceBack - MIN_WORDLENGTH); i++){ //Sjekker for hver bokstav fra -127 tilbake eller så langt som mulig fra startIndex.
+        for (int i = startLongestBackIndex; i <= (distanceBack - MIN_WORDLENGTH); i++) { //Sjekker for hver bokstav fra -127 tilbake eller så langt som mulig fra startIndex.
             boolean isFound = true;
+            //System.out.println("i: " + i);
             //Loopen går helt til ett tegn ikke matcher, da returner metoden
-            for(int j = i, k = 0; k < bytesToMatch.size(); j++, k++){ //Sjekker for hvert ord som er laget i arraylisten.
-                if(tempBlock[j] != bytesToMatch.get(k)){ //Sjekker hvert tegn i det ordet.
+            for (int j = i, k = 0; k < bytesToMatch.size() - 1; j++, k++) { //Sjekker for hvert ord som er laget i arraylisten.
+               // System.out.println("j: " + j);
+                if (tempBlock[j] != bytesToMatch.get(k)) { //Sjekker hvert tegn i det ordet.
                     isFound = false;
                     break;
                 }
@@ -159,11 +161,12 @@ public class LempelZiv {
             }
             this.bytesRemaining -= MAX_DISTANCE_BACK; //bytesRemaining blir da en blokkstørrelse mindre.
         }
+        currentBlock++;
     }
 
     public static void main(String[] args) {
         //LempelZiv LempelZinCompression = new LempelZiv("C:\\Users\\knut-\\OneDrive\\Dokumenter\\Skole\\Programmering\\Prosjekter\\LempelZiv\\tekster\\decompressedFile.txt", "C:\\Users\\knut-\\OneDrive\\Dokumenter\\Skole\\Programmering\\Prosjekter\\LempelZiv\\tekster\\compressed.txt"); //Sende inn fil som skal komprimeres og hvor ny fil skal skrives.
-        LempelZiv LempelZinCompression = new LempelZiv("tekster/text.txt", "tekster/compressed.txt"); //Sende inn fil som skal komprimeres og hvor ny fil skal skrives.
+        LempelZiv LempelZinCompression = new LempelZiv("tekster/text.txt", "tekster/compressedFile.txt"); //Sende inn fil som skal komprimeres og hvor ny fil skal skrives.
 
         LempelZinCompression.compressFile();
     }
