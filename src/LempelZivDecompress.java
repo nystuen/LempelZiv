@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class LempelZivDecompress {
     private static String s = "[]{}abcdefghijklmnopqrstuvwxyzæøå,.-;:_!#$%&/()=?´";
 
-    //static byte[] bytes = {(byte) 5, (byte) 'b', (byte) 'm', (byte) 'o', (byte) 'b', (byte) 'a', (byte) -4, (byte) 4, (byte) 3, (byte) 'o', (byte) 'k', (byte) 'k', (byte) -10, (byte) 4, (byte) 1, (byte) 0};
+    //sftatic byte[] bytes = {(byte) 5, (byte) 'b', (byte) 'm', (byte) 'o', (byte) 'b', (byte) 'a', (byte) -4, (byte) 4, (byte) 3, (byte) 'o', (byte) 'k', (byte) 'k', (byte) -10, (byte) 4, (byte) 1, (byte) 0};
       static byte[] bytes = {(byte) 12, (byte) 'P', (byte) 'r', (byte) 'o', (byte) 'b', (byte) 'l', (byte) 'e', (byte) 'm', (byte) 'e', (byte) 'r', (byte) ',', (byte) ' ', (byte) 'p', (byte) -11, (byte) 8, (byte) 10, (byte) '.', (byte) ' ', (byte) 'A', (byte) 'l', (byte) 'l', (byte) 't', (byte) 'i', (byte) 'd', (byte) ' ', (byte) 'p', (byte) -24, (byte) 8};
     //static byte[] bytes = {(byte) 10, (byte) 'H', (byte) 'e', (byte) 'i', (byte) ' ', (byte) 's', (byte) 'v', (byte) 'e', (byte) 'i', (byte) 's', (byte) ',', (byte) -7, (byte) 6};
     // Hei sveis, sveis
