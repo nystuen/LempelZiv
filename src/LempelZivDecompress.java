@@ -3,6 +3,8 @@ import java.lang.reflect.Array;
 import java.rmi.server.ExportException;
 import java.util.ArrayList;
 
+// j < i+127 &&
+
 public class LempelZivDecompress {
     private static String s = "[]{}abcdefghijklmnopqrstuvwxyzæøå,.-;:_!#$%&/()=?´";
 
@@ -63,7 +65,6 @@ public class LempelZivDecompress {
 
                 int startPos = result.size() + refNumber;
                 currentPosition += 2;
-                System.out.println("Startpos: " + startPos + "\nReadnumber: " + readNumber + "\nRefnumber: " + refNumber + "\nCurrentpos: " + currentPosition);
                 for (int i = 0; i < readNumber; startPos++, i++) {
                     result.add(result.get(startPos));
                     //System.out.print(" " + ( result.get(startPos).getVal);
@@ -74,8 +75,9 @@ public class LempelZivDecompress {
                  * characters[currentposition] er positivt, følgende karakterer skal være ukomprimert.
                  */
                 currentPosition++;
-                for (int i = 0; i < readNumber; currentPosition++, i++) {
+                for (int i = 0; i < readNumber && currentPosition < characters.length; currentPosition++, i++) {
                     System.out.print(" " + (char) characters[currentPosition]);
+                    System.out.println("currentPos: " + currentPosition);
                     result.add(characters[currentPosition]);
                 }
             }
